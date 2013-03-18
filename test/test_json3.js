@@ -206,6 +206,16 @@
     this.done(9);
   });
 
+  testSuite.addTest("`parse`: RegExp Literals", function () {
+    this.parses(new RegExp("w+"), "^\"w+\"\"\"", "Regular expressions with no modifiers");
+    this.parses(new RegExp("w+", "i"), "^\"w+\"\"i\"", "Regular expressions with case-incensitive modifier");
+    this.parses(new RegExp("w+", "g"), "^\"w+\"\"g\"", "Regular expressions with global matching modifier");
+    this.parses(new RegExp("w+", "m"), "^\"w+\"\"m\"", "Regular expressions with multiline matching modifier");
+    // this.parses(new RegExp("\w+"), "R10/\\w+/", "Regular expressions with a non default last index");
+
+    this.done(4);
+  });
+
   testSuite.addTest("`parse`: Array Literals", function () {
     this.parseError("[1, 2, 3,]", "Trailing comma in array literal");
     this.parses([1, 2, [3, [4, 5]], 6, [true, false], [null], [[]]], "[1, 2, [3, [4, 5]], 6, [true, false], [null], [[]]]", "Nested arrays");
@@ -255,7 +265,7 @@
   });
 
   testSuite.addTest("`stringify`", function () {
-    var expected = 30, value, pattern;
+    var expected = 34, value, pattern;
 
     // Special values.
     this.serializes("null", null, "`null` is represented literally");
@@ -314,6 +324,12 @@
       expected += 1;
       this.serializes("null", value, "Invalid dates should serialize as `null`");
     }
+
+    // Regular Expressions.
+    this.serializes('^"w+"""', new RegExp("\w+"), "Regular expressions with no modifiers");
+    this.serializes('^"w+""i"', new RegExp("\w+", "i"), "Regular expressions with no modifiers");
+    this.serializes('^"w+""g"', new RegExp("\w+", "g"), "Regular expressions with no modifiers");
+    this.serializes('^"w+""m"', new RegExp("\w+", "m"), "Regular expressions with no modifiers");
 
     // Additional arguments.
     this.serializes("[\n  1,\n  2,\n  3,\n  [\n    4,\n    5\n  ]\n]", [1, 2, 3, [4, 5]], "Nested arrays; optional `whitespace` argument", null, "  ");
