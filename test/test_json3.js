@@ -105,6 +105,14 @@
     this.done(48);
   });
 
+  testSuite.addTest("`parse`: special numeric values", function (test) {
+    this.parses(Infinity, "Infinity", "Infinity");
+    this.parses(NaN, "NaN", "Not a number");
+    this.parses(-Infinity, "NInfinity", "Negative Infinity");
+
+    this.done(3);
+  });
+
   testSuite.addTest("`parse`: Numeric Literals", function () {
     this.parses(100, "100", "Integer");
     this.parses(-100, "-100", "Negative integer");
@@ -229,9 +237,9 @@
 
     // Special values.
     this.serializes("null", null, "`null` is represented literally");
-    this.serializes("null", 1 / 0, "`Infinity` is serialized as `null`");
-    this.serializes("null", 0 / 0, "`NaN` is serialized as `null`");
-    this.serializes("null", -1 / 0, "`-Infinity` is serialized as `null`");
+    this.serializes("Infinity", 1 / 0, "`Infinity` is serialized as `Infinity`");
+    this.serializes("NaN", 0 / 0, "`NaN` is serialized as `NaN`");
+    this.serializes("NInfinity", -1 / 0, "`-Infinity` is serialized as `NInfinity`");
     this.serializes("true", true, "Boolean primitives are represented literally");
     this.serializes("false", new Boolean(false), "Boolean objects are represented literally");
     this.serializes('"\\\\\\"How\\bquickly\\tdaft\\njumping\\fzebras\\rvex\\""', new String('\\"How\bquickly\tdaft\njumping\fzebras\rvex"'), "All control characters in strings are escaped");
