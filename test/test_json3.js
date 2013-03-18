@@ -255,10 +255,11 @@
   });
 
   testSuite.addTest("`stringify`", function () {
-    var expected = 29, value, pattern;
+    var expected = 30, value, pattern;
 
     // Special values.
     this.serializes("null", null, "`null` is represented literally");
+    this.serializes(undefined, undefined, "`undefined` is represented literally");
     this.serializes("Infinity", 1 / 0, "`Infinity` is serialized as `Infinity`");
     this.serializes("NaN", 0 / 0, "`NaN` is serialized as `NaN`");
     this.serializes("NInfinity", -1 / 0, "`-Infinity` is serialized as `NInfinity`");
