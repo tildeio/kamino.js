@@ -40,7 +40,13 @@
 
   // Ensures that `JSON.parse` parses the given source string correctly.
   Spec.Test.prototype.parses = function (expected, source, message, callback) {
-    return this.deepEqual(JSON.parse(source, callback), expected, message);
+    var value;
+    try {
+      value = JSON.parse(source, callback);
+    } catch( exception) {
+      value = exception.name;
+    }
+    return this.deepEqual(value, expected, message);
   };
 
   // Ensures that `JSON.stringify` serializes the given object correctly.
