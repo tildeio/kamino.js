@@ -51,7 +51,13 @@
 
   // Ensures that `JSON.stringify` serializes the given object correctly.
   Spec.Test.prototype.serializes = function (expected, value, message, filter, width) {
-    return this.strictEqual(JSON.stringify(value, filter, width), expected, message);
+    var value;
+    try {
+      value = JSON.stringify(value, filter, width);
+    } catch( exception) {
+      value = exception.name;
+    }
+    return this.strictEqual(value, expected, message);
   };
 
   // Ensures that `JSON.stringify` throws a `TypeError` if the given object
