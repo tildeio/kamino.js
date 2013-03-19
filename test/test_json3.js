@@ -239,6 +239,19 @@
     this.done(9);
   });
 
+  testSuite.addTest("`parse`: object references", function () {
+    message = JSON.parse("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3}}}");
+    this.strictEqual(message.article.users[0], message.article.comment.author, "");
+    this.strictEqual(message.article.comment.author.name, "John");
+
+    message = JSON.parse("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3,\"article\":&1}}}");
+    this.strictEqual(message.article.users[0], message.article.comment.author);
+    this.strictEqual(message.article.comment.author.name, "John");
+    this.strictEqual(message.article, message.article.comment.article);
+
+    this.done(5);
+  });
+
   // JavaScript expressions should never be evaluated, as JSON 3 does not use
   // `eval`.
   testSuite.addTest("`parse`: Invalid Expressions", function (test) {
@@ -340,6 +353,20 @@
     this.serializes("{\n  \"foo\": {\n    \"bar\": [\n      123\n    ]\n  }\n}", {"foo": {"bar": [123]}}, "Nested objects; optional numeric `whitespace` argument", null, 2);
 
     this.done(expected);
+  });
+
+  testSuite.addTest("`stringify`: object references", function () {
+    var user = {name: "John"},
+        comment = {author: user},
+        article = {users: [user], comment: comment},
+        message = {article: article};
+
+    this.serializes("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3}}}", message, "An object with references can be serialized");
+
+    message.article.comment.article = message.article;
+    this.serializes("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3,\"article\":&1}}}", message, "An object with circular references can be serialized");
+
+    this.done(2);
   });
 
   /*
