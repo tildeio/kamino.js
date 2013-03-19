@@ -60,16 +60,6 @@
     return this.strictEqual(value, expected, message);
   };
 
-  // Ensures that `JSON.stringify` throws a `TypeError` if the given object
-  // contains a circular reference.
-  Spec.Test.prototype.cyclicError = function (value, message) {
-    return this.error(function () {
-      JSON.stringify(value);
-    }, function (exception) {
-      return exception.name == "TypeError";
-    }, message);
-  };
-
   // Tests
   // -----
 
@@ -284,7 +274,7 @@
   });
 
   testSuite.addTest("`stringify`", function () {
-    var expected = 34, value, pattern;
+    var expected = 32, value, pattern;
 
     // Special values.
     this.serializes("null", null, "`null` is represented literally");
@@ -310,13 +300,6 @@
     // Complex cyclic structures.
     value = { "foo": { "b": { "foo": { "c": { "foo": null} } } } };
     this.serializes('{"foo":{"b":{"foo":{"c":{"foo":null}}}}}', value, "Nested objects containing identically-named properties should serialize correctly");
-
-    var S = [], N = {};
-    S.push(N, N);
-    this.serializes('[{},{}]', S, "Objects containing duplicate references should not throw a `TypeError`");
-
-    value.foo.b.foo.c.foo = value;
-    this.cyclicError(value, "Objects containing complex circular references should throw a `TypeError`");
 
     // Sparse arrays.
     value = [];
@@ -565,17 +548,7 @@
       return value === 42 ? new Boolean(false) : value;
     });
 
-    // Test 15.12.3@4-1-2. 15.12.3@4-1-1 only tests whether an exception is
-    // thrown; the type of the exception is not checked.
-    value = {};
-    value.prop = value;
-    this.cyclicError(value, "An object containing a circular reference should throw a `TypeError`");
-
-    // Test 15.12.3@4-1-3, modified to ensure that a `TypeError` is thrown.
-    value = { "p1": { "p2": {} } };
-    value.p1.p2.prop = value;
-    this.cyclicError(value, "A nested cyclic structure should throw a `TypeError`");
-    this.done(74);
+    this.done(72);
   });
 
   // This test may fail in certain implementations.
