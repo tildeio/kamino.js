@@ -49,6 +49,16 @@
     return this.deepEqual(value, expected, message);
   };
 
+  // Ensures that `JSON.stringify` throws an exception when serializing the given
+  // `value` object.
+  Spec.Test.prototype.serializeError = function (value, message, filter, width) {
+    return this.error(function () {
+      JSON.stringify(value, filter, width);
+    }, function (exception) {
+      return exception == DOMException;
+    }, message);
+  };
+
   // Ensures that `JSON.stringify` serializes the given object correctly.
   Spec.Test.prototype.serializes = function (expected, value, message, filter, width) {
     var value;
@@ -356,6 +366,16 @@
     this.serializes("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3,\"article\":&1}}}", message, "An object with circular references can be serialized");
 
     this.done(2);
+  });
+
+  testSuite.addTest("`stringify`: Invalid Expressions", function (test) {
+    var myFn = new Function(), myError = new Error(), myElement = window.document.createElement();
+
+    Spec.forEach([myFn, myError, myElement], function(expression) {
+      test.serializeError(expression);
+    });
+
+    this.done(3);
   });
 
   /*
