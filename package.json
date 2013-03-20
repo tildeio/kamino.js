@@ -1,10 +1,10 @@
 {
-  "name": "json3",
-  "version": "3.2.4",
-  "description": "A modern JSON implementation compatible with nearly all JavaScript platforms.",
-  "homepage": "http://bestiejs.github.com/json3",
-  "main": "./lib/json3",
-  "keywords": ["json", "spec", "ecma", "es5", "lexer", "parser", "stringify"],
+  "name": "kamino",
+  "version": "0.0.1",
+  "description": "A library for passing data structures between sandboxed environments in the browser via postMessage.",
+  "homepage": "http://github.com/Cyril-sf/kamino.js",
+  "main": "./lib/kamino",
+  "keywords": ["json", "spec", "ecma", "es5", "lexer", "parser", "stringify", "postMessage"],
   "licenses": [{
     "type": "MIT",
     "url": "http://kit.mit-license.org/"
@@ -14,17 +14,17 @@
     "web": "http://kitcambridge.github.com"
   },
   "maintainers": [{
-    "name": "Kit Cambridge",
-    "web": "http://kitcambridge.github.com"
+    "name": "Cyril Fluck",
+    "web": "http://github.com/Cyril-sf"
   }],
   "bugs": {
-    "url": "http://github.com/bestiejs/json3/issues"
+    "url": "http://github.com/Cyril-sf/kamino.js/issues"
   },
   "scripts": {
     "test": "node test/test_*.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/bestiejs/json3.git"
+    "url": "http://github.com/Cyril-sf/kamino.js"
   }
 }

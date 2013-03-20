@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>JSON 3 Unit Tests</title>
+    <title>Kamino Unit Tests</title>
     <link rel="stylesheet" href="../vendor/spec/lib/newton.css" media="screen">
     <script src="../vendor/spec/lib/spec.js"></script>
     <script src="../vendor/spec/lib/newton.js"></script>
@@ -26,29 +26,29 @@
     }());
     </script>
     <script>
-    var JSON;
+    var Kamino;
     (function () {
       if (typeof require == "function" && typeof define == "function") {
         require({
           // RequireJS accepts relative paths in the module name; `curl.js` does
           // not. Both accept a `paths` map of module paths to relative paths.
-          "paths": { "json": "../lib/json3" },
+          "paths": { "kamino": "../lib/kamino" },
           // Thwart aggressive resource caching. RequireJS only.
           "urlArgs": "async=" + (+new Date())
-        }, ["json", "test_json3"], function (JSON3, testSuite) {
+        }, ["kamino", "test_kamino"], function (Kamino, testSuite) {
           // Test asynchronous module loading via RequireJS/`curl.js`.
           testSuite.addTest("Asynchronous Module Definition", function (test) {
             setTimeout(function () {
-              test.equal(JSON3.stringify(1), "1", "JSON 3 should be exported as an asynchronous module").done(1);
+              test.equal(Kamino.stringify(1), "1", "Kamino should be exported as an asynchronous module").done(1);
             }, 1500);
           });
           testSuite.run();
         });
       } else {
-        document.write('<script src="../lib/json3.js"><\/script>');
-        document.write('<script src="test_json3.js"><\/script>');
+        document.write('<script src="../lib/kamino.js"><\/script>');
+        document.write('<script src="test_kamino.js"><\/script>');
         window.onload = function () {
-          JSON.testSuite.run();
+          Kamino.testSuite.run();
         };
       }
     }());

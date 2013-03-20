@@ -1,4 +1,4 @@
-/* JSON 3 Unit Test Suite | http://bestiejs.github.com/json3 */
+/* Kamino 3 Unit Test Suite | http://github.com/Cyril-sf/kamino.js */
 (function (root) {
   var isLoader = typeof define == "function" && !!define.amd,
   isModule = typeof require == "function" && typeof exports == "object" && exports && !isLoader,
@@ -10,11 +10,11 @@
       (root.load(path.replace(/\.js$/, "") + ".js"), root[module]) : null);
   },
 
-  // Load Spec, Newton, and JSON 3.
-  Spec = load("Spec", "./../vendor/spec/lib/spec"), Newton = load("Newton", "./../vendor/spec/lib/newton"), JSON = load("JSON", "../lib/json3"),
+  // Load Spec, Newton, and Kamino 3.
+  Spec = load("Spec", "./../vendor/spec/lib/spec"), Newton = load("Newton", "./../vendor/spec/lib/newton"), Kamino = load("Kamino", "../lib/kamino"),
 
   // Create the test suite.
-  testSuite = JSON.testSuite = new Spec.Suite("JSON 3 Unit Tests");
+  testSuite = Kamino.testSuite = new Spec.Suite("Kamino 3 Unit Tests");
 
   // Create and attach the logger event handler.
   testSuite.on("all", isBrowser ? Newton.createReport("suite") : Newton.createConsole(function (value) {
@@ -28,42 +28,42 @@
     }
   }));
 
-  // Ensures that `JSON.parse` throws an exception when parsing the given
+  // Ensures that `Kamino.parse` throws an exception when parsing the given
   // `source` string.
   Spec.Test.prototype.parseError = function (source, message, callback) {
     return this.error(function () {
-      JSON.parse(source, callback);
+      Kamino.parse(source, callback);
     }, function (exception) {
       return exception.name == "SyntaxError";
     }, message);
   };
 
-  // Ensures that `JSON.parse` parses the given source string correctly.
+  // Ensures that `Kamino.parse` parses the given source string correctly.
   Spec.Test.prototype.parses = function (expected, source, message, callback) {
     var value;
     try {
-      value = JSON.parse(source, callback);
+      value = Kamino.parse(source, callback);
     } catch( exception) {
       value = exception.name;
     }
     return this.deepEqual(value, expected, message);
   };
 
-  // Ensures that `JSON.stringify` throws an exception when serializing the given
+  // Ensures that `Kamino.stringify` throws an exception when serializing the given
   // `value` object.
   Spec.Test.prototype.serializeError = function (value, message, filter, width) {
     return this.error(function () {
-      JSON.stringify(value, filter, width);
+      Kamino.stringify(value, filter, width);
     }, function (exception) {
       return exception == DOMException;
     }, message);
   };
 
-  // Ensures that `JSON.stringify` serializes the given object correctly.
+  // Ensures that `Kamino.stringify` serializes the given object correctly.
   Spec.Test.prototype.serializes = function (expected, value, message, filter, width) {
     var value;
     try {
-      value = JSON.stringify(value, filter, width);
+      value = Kamino.stringify(value, filter, width);
     } catch( exception) {
       value = exception.name;
     }
@@ -74,7 +74,7 @@
   // -----
 
   testSuite.addTest("`parse`: Empty Source Strings", function () {
-    this.parseError("", "Empty JSON source string");
+    this.parseError("", "Empty Kamino source string");
     this.parseError("\n\n\r\n", "Source string containing only line terminators");
     this.parseError(" ", "Source string containing a single space character");
     this.parseError(" ", "Source string containing multiple space characters");
@@ -82,7 +82,7 @@
   });
 
   testSuite.addTest("`parse`: Whitespace", function (test) {
-    // The only valid JSON whitespace characters are tabs, spaces, and line
+    // The only valid Kamino whitespace characters are tabs, spaces, and line
     // terminators. All other Unicode category `Z` (`Zs`, `Zl`, and `Zp`)
     // characters are invalid (note that the `Zs` category includes the
     // space character).
@@ -147,7 +147,7 @@
     this.parseError("1-+", "Trailing `-+`");
     this.parseError("0xaf", "Hex literal");
 
-    // The native `JSON.parse` implementation in IE 9 allows this syntax, but
+    // The native `Kamino.parse` implementation in IE 9 allows this syntax, but
     // the feature tests should detect the broken implementation.
     this.parseError("- 5", "Invalid negative sign");
 
@@ -246,11 +246,11 @@
   });
 
   testSuite.addTest("`parse`: object references", function () {
-    message = JSON.parse("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3}}}");
+    message = Kamino.parse("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3}}}");
     this.strictEqual(message.article.users[0], message.article.comment.author, "");
     this.strictEqual(message.article.comment.author.name, "John");
 
-    message = JSON.parse("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3,\"article\":&1}}}");
+    message = Kamino.parse("{\"article\":{\"users\":[{\"name\":\"John\"}],\"comment\":{\"author\":&3,\"article\":&1}}}");
     this.strictEqual(message.article.users[0], message.article.comment.author);
     this.strictEqual(message.article.comment.author.name, "John");
     this.strictEqual(message.article, message.article.comment.article);
@@ -258,7 +258,7 @@
     this.done(5);
   });
 
-  // JavaScript expressions should never be evaluated, as JSON 3 does not use
+  // JavaScript expressions should never be evaluated, as Kamino 3 does not use
   // `eval`.
   testSuite.addTest("`parse`: Invalid Expressions", function (test) {
     Spec.forEach(["1 + 1", "1 * 2", "var value = 123;", "{});value = 123;({}", "call()", "1, 2, 3, \"value\""], function (expression) {
@@ -272,10 +272,10 @@
       return typeof value == "string" ? parseInt(value, 2) : value;
     });
     this.serializes("{\n  \"bar\": 456\n}", {"foo": 123, "bar": 456}, "Object; optional `filter` and `whitespace` arguments", ["bar"], 2);
-    // Test adapted from the Opera JSON test suite via Ken Snyder.
-    // See http://testsuites.opera.com/JSON/correctness/scripts/045.js
+    // Test adapted from the Opera Kamino test suite via Ken Snyder.
+    // See http://testsuites.opera.com/Kamino/correctness/scripts/045.js
     this.serializes('{"PI":3.141592653589793}', Math, "List of non-enumerable property names specified as the `filter` argument", ["PI"]);
-    this.equal(3, JSON.parse("[1, 2, 3]", function (key, value) {
+    this.equal(3, Kamino.parse("[1, 2, 3]", function (key, value) {
       if (typeof value == "object" && value) {
         return value;
       }
@@ -305,7 +305,7 @@
       "kitcambridge": ["Kit", 18],
       "mathias": ["Mathias", 23]
     };
-    this.parses(value, JSON.stringify(value), "Objects are serialized recursively");
+    this.parses(value, Kamino.stringify(value), "Objects are serialized recursively");
 
     // Complex cyclic structures.
     value = { "foo": { "b": { "foo": { "c": { "foo": null} } } } };
@@ -409,7 +409,7 @@
   testSuite.addTest("ECMAScript 5 Conformance", function () {
     var value = { "a1": { "b1": [1, 2, 3, 4], "b2": { "c1": 1, "c2": 2 } }, "a2": "a2" };
 
-    // Section 15.12.1.1: The JSON Grammar.
+    // Section 15.12.1.1: The Kamino Grammar.
     // ------------------------------------
 
     // Tests 15.12.1.1-0-1 thru 15.12.1.1-0-8.
@@ -470,64 +470,60 @@
     this.parses("\r", '"\\r"', "Escaped carriage return");
     this.parses("\t", '"\\t"', "Escaped tab");
 
-    // Section 15.12.3: `JSON.stringify()`.
+    // Section 15.12.3: `Kamino.stringify()`.
     // ------------------------------------
 
     // Test 15.12.3-11-1 thru 5.12.3-11-15.
-    this.serializes(void 0, void 0, "`JSON.stringify(undefined)` should return `undefined`");
-    this.serializes('"replacement"', void 0, "The `JSON.stringify` callback function can be called on a top-level `undefined` value", function (key, value) {
+    this.serializes(void 0, void 0, "`Kamino.stringify(undefined)` should return `undefined`");
+    this.serializes('"replacement"', void 0, "The `Kamino.stringify` callback function can be called on a top-level `undefined` value", function (key, value) {
       return "replacement";
     });
-    this.serializes('"a string"', "a string", "`JSON.stringify` should serialize top-level string primitives");
-    this.serializes("123", 123, "`JSON.stringify` should serialize top-level number primitives");
-    this.serializes("true", true, "`JSON.stringify` should serialize top-level Boolean primitives");
-    this.serializes("null", null, "`JSON.stringify` should serialize top-level `null` values");
-    this.serializes("42", new Number(42), "`JSON.stringify` should serialize top-level number objects");
-    this.serializes('"wrapped"', new String("wrapped"), "`JSON.stringify` should serialize top-level string objects");
-    this.serializes("false", new Boolean(false), "`JSON.stringify` should serialize top-level Boolean objects");
-    this.serializes(void 0, 42, "The `JSON.stringify` callback function may return `undefined` when called on a top-level number primitive", function () {
+    this.serializes('"a string"', "a string", "`Kamino.stringify` should serialize top-level string primitives");
+    this.serializes("123", 123, "`Kamino.stringify` should serialize top-level number primitives");
+    this.serializes("true", true, "`Kamino.stringify` should serialize top-level Boolean primitives");
+    this.serializes("null", null, "`Kamino.stringify` should serialize top-level `null` values");
+    this.serializes("42", new Number(42), "`Kamino.stringify` should serialize top-level number objects");
+    this.serializes('"wrapped"', new String("wrapped"), "`Kamino.stringify` should serialize top-level string objects");
+    this.serializes("false", new Boolean(false), "`Kamino.stringify` should serialize top-level Boolean objects");
+    this.serializes(void 0, 42, "The `Kamino.stringify` callback function may return `undefined` when called on a top-level number primitive", function () {
       return void 0;
     });
-    this.serializes(void 0, { "prop": 1 }, "The `JSON.stringify` callback function may return `undefined` when called on a top-level object", function () {
+    this.serializes(void 0, { "prop": 1 }, "The `Kamino.stringify` callback function may return `undefined` when called on a top-level object", function () {
       return void 0;
     });
-    this.serializes("[4,2]", 42, "The `JSON.stringify` callback function may return an array when called on a top-level number primitive", function (key, value) {
+    this.serializes("[4,2]", 42, "The `Kamino.stringify` callback function may return an array when called on a top-level number primitive", function (key, value) {
       return value == 42 ? [4, 2] : value;
     });
-    this.serializes('{"forty":2}', 42, "The `JSON.stringify` callback function may return an object literal when called on a top-level number primitive", function (key, value) {
+    this.serializes('{"forty":2}', 42, "The `Kamino.stringify` callback function may return an object literal when called on a top-level number primitive", function (key, value) {
       return value == 42 ? { "forty": 2 } : value;
-    });
-    this.serializes(void 0, function () {}, "`JSON.stringify` should return `undefined` when called on a top-level function");
-    this.serializes("99", function () {}, "The `JSON.stringify` callback function may return a number primitive when called on a top-level function", function () {
-      return 99;
     });
 
     // Test 15.12.3-4-1.
-    this.serializes("[42]", [42], "`JSON.stringify` should ignore `filter` arguments that are not functions or arrays", {});
+    this.serializes("[42]", [42], "`Kamino.stringify` should ignore `filter` arguments that are not functions or arrays", {});
 
     // Test 15.12.3-5-a-i-1 and 15.12.3-5-b-i-1.
-    this.equal(JSON.stringify(value, null, new Number(5)), JSON.stringify(value, null, 5), "Optional `width` argument: Number object and primitive width values should produce identical results");
-    this.equal(JSON.stringify(value, null, new String("xxx")), JSON.stringify(value, null, "xxx"), "Optional `width` argument: String object and primitive width values should produce identical results");
+    this.equal(Kamino.stringify(value, null, new Number(5)), Kamino.stringify(value, null, 5), "Optional `width` argument: Number object and primitive width values should produce identical results");
+    this.equal(Kamino.stringify(value, null, new String("xxx")), Kamino.stringify(value, null, "xxx"), "Optional `width` argument: String object and primitive width values should produce identical results");
 
     // Test 15.12.3-6-a-1 and 15.12.3-6-a-2.
-    this.equal(JSON.stringify(value, null, 10), JSON.stringify(value, null, 100), "Optional `width` argument: The maximum numeric width value should be 10");
-    this.equal(JSON.stringify(value, null, 5.99999), JSON.stringify(value, null, 5), "Optional `width` argument: Numeric values should be converted to integers");
+    this.equal(Kamino.stringify(value, null, 10), Kamino.stringify(value, null, 100), "Optional `width` argument: The maximum numeric width value should be 10");
+    this.equal(Kamino.stringify(value, null, 5.99999), Kamino.stringify(value, null, 5), "Optional `width` argument: Numeric values should be converted to integers");
 
     // Test 15.12.3-6-b-1 and 15.12.3-6-b-4.
-    this.equal(JSON.stringify(value, null, 0.999999), JSON.stringify(value), "Optional `width` argument: Numeric width values between 0 and 1 should be ignored");
-    this.equal(JSON.stringify(value, null, 0), JSON.stringify(value), "Optional `width` argument: Zero should be ignored");
-    this.equal(JSON.stringify(value, null, -5), JSON.stringify(value), "Optional `width` argument: Negative numeric values should be ignored");
-    this.equal(JSON.stringify(value, null, 5), JSON.stringify(value, null, "     "), "Optional `width` argument: Numeric width values in the range [1, 10] should produce identical results to that of string values containing `width` spaces");
+    this.equal(Kamino.stringify(value, null, 0.999999), Kamino.stringify(value), "Optional `width` argument: Numeric width values between 0 and 1 should be ignored");
+    this.equal(Kamino.stringify(value, null, 0), Kamino.stringify(value), "Optional `width` argument: Zero should be ignored");
+    this.equal(Kamino.stringify(value, null, -5), Kamino.stringify(value), "Optional `width` argument: Negative numeric values should be ignored");
+    this.equal(Kamino.stringify(value, null, 5), Kamino.stringify(value, null, "     "), "Optional `width` argument: Numeric width values in the range [1, 10] should produce identical results to that of string values containing `width` spaces");
 
     // Test 15.12.3-7-a-1.
-    this.equal(JSON.stringify(value, null, "0123456789xxxxxxxxx"), JSON.stringify(value, null, "0123456789"), "Optional `width` argument: String width values longer than 10 characters should be truncated");
+    this.equal(Kamino.stringify(value, null, "0123456789xxxxxxxxx"), Kamino.stringify(value, null, "0123456789"), "Optional `width` argument: String width values longer than 10 characters should be truncated");
 
     // Test 15.12.3-8-a-1 thru 15.12.3-8-a-5.
-    this.equal(JSON.stringify(value, null, ""), JSON.stringify(value), "Empty string `width` arguments should be ignored");
-    this.equal(JSON.stringify(value, null, true), JSON.stringify(value), "Boolean primitive `width` arguments should be ignored");
-    this.equal(JSON.stringify(value, null, null), JSON.stringify(value), "`null` `width` arguments should be ignored");
-    this.equal(JSON.stringify(value, null, new Boolean(false)), JSON.stringify(value), "Boolean object `width` arguments should be ignored");
-    this.equal(JSON.stringify(value, null, value), JSON.stringify(value), "Object literal `width` arguments should be ignored");
+    this.equal(Kamino.stringify(value, null, ""), Kamino.stringify(value), "Empty string `width` arguments should be ignored");
+    this.equal(Kamino.stringify(value, null, true), Kamino.stringify(value), "Boolean primitive `width` arguments should be ignored");
+    this.equal(Kamino.stringify(value, null, null), Kamino.stringify(value), "`null` `width` arguments should be ignored");
+    this.equal(Kamino.stringify(value, null, new Boolean(false)), Kamino.stringify(value), "Boolean object `width` arguments should be ignored");
+    this.equal(Kamino.stringify(value, null, value), Kamino.stringify(value), "Object literal `width` arguments should be ignored");
 
     // Test 15.12.3@2-2-b-i-1.
     this.serializes('["fortytwo objects"]', [{
@@ -551,24 +547,24 @@
       "toJSON": function () {
         return new Boolean(true);
       }
-    }], "An object liyeral with a custom `toJSON` method nested within an array may return a Boolean object for serialization");
+    }], "An object literal with a custom `toJSON` method nested within an array may return a Boolean object for serialization");
 
     // Test 15.12.3@2-3-a-1.
-    this.serializes('["fortytwo"]', [42], "The `JSON.stringify` callback function may return a string object when called on an array", function (key, value) {
+    this.serializes('["fortytwo"]', [42], "The `Kamino.stringify` callback function may return a string object when called on an array", function (key, value) {
       return value === 42 ? new String("fortytwo") : value;
     });
 
     // Test 15.12.3@2-3-a-2.
-    this.serializes('[84]', [42], "The `JSON.stringify` callback function may return a number object when called on an array", function (key, value) {
+    this.serializes('[84]', [42], "The `Kamino.stringify` callback function may return a number object when called on an array", function (key, value) {
       return value === 42 ? new Number(84) : value;
     });
 
     // Test 15.12.3@2-3-a-3.
-    this.serializes('[false]', [42], "The `JSON.stringify` callback function may return a Boolean object when called on an array", function (key, value) {
+    this.serializes('[false]', [42], "The `Kamino.stringify` callback function may return a Boolean object when called on an array", function (key, value) {
       return value === 42 ? new Boolean(false) : value;
     });
 
-    this.done(72);
+    this.done(70);
   });
 
   // This test may fail in certain implementations.

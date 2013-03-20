@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* JSON 3 Builder | http://bestiejs.github.com/json3 */
+/* Kamino Builder | http://github.com/Cyril-sf/kamino.js */
 var path = require("path"), fs = require("fs"), gzip = require("zlib").gzip, spawn = require("child_process").spawn, marked = require(path.join(__dirname, "vendor", "marked")),
 
 // The path to the Closure Compiler `.jar` file.
@@ -91,8 +91,8 @@ fs.readFile(path.join(__dirname, "README.md"), "utf8", function readInfo(excepti
   }
 });
 
-// Compress JSON 3 using the Closure Compiler.
-fs.readFile(path.join(__dirname, "lib", "json3.js"), "utf8", function readSource(exception, source) {
+// Compress Kamino using the Closure Compiler.
+fs.readFile(path.join(__dirname, "lib", "kamino.js"), "utf8", function readSource(exception, source) {
   var error, output, compiler, results;
   if (exception) {
     console.log(exception);
@@ -128,12 +128,12 @@ fs.readFile(path.join(__dirname, "lib", "json3.js"), "utf8", function readSource
     if (exception) {
       console.log(exception);
     } else {
-      // Extract the JSON 3 header and wrap the compressed source in an
+      // Extract the Kamino header and wrap the compressed source in an
       // IIFE (enabling advanced optimizations causes the Compiler to add
       // variables to the global scope).
       compressed = extractComments(source)[0] + "\n;(function(){" + compressed + "}());";
       // Write the compressed version to disk.
-      fs.writeFile(path.join(__dirname, "lib", "json3.min.js"), compressed, writeSource);
+      fs.writeFile(path.join(__dirname, "lib", "kamino.min.js"), compressed, writeSource);
     }
 
     // Checks the `gzip`-ped size of the compressed version by shelling out to the

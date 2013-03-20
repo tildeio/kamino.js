@@ -1,124 +1,240 @@
-# JSON 3 #
+## Kamino.js
 
-![JSON 3 Logo](http://bestiejs.github.com/json3/page/logo.png)
+> _Kamino (pronounced /kə'minoʊ/), called Planet of Storms, was the
+> watery world where the Clone Army for the Galactic Republic was created,
+> as well as the Kamino Home Fleet. It was inhabited by a race of tall,
+> elegant beings called the Kaminoans, who kept to themselves and were
+> known for their cloning technology._
+> 
+> —[Wookiepedia](http://starwars.wikia.com/wiki/Kamino)
 
-**JSON 3** is a modern JSON implementation compatible with a variety of JavaScript platforms, including Internet Explorer 6, Opera 7, Safari 2, and Netscape 6. The current version is **3.2.4**.
+Kamino.js is a library for passing data structures between sandboxed
+environments in the browser via `postMessage`. While newer browsers
+implement this automatically, older browsers only allow string
+arguments. Kamino.js serializes JavaScript data structures into a string
+that can be reconstituted on the other side.
 
-- [Development Version](http://cdnjs.cloudflare.com/ajax/libs/json3/3.2.4/json3.js) *(36.5 KB; uncompressed with comments)*
-- [Production Version](http://cdnjs.cloudflare.com/ajax/libs/json3/3.2.4/json3.min.js) *(3.0 KB; compressed and `gzip`-ped)*
+In keeping with the Unix philosophy, it is a modular library that does
+one thing and does it well.
 
-[JSON](http://json.org/) is a language-independent data interchange format based on a loose subset of the JavaScript grammar. Originally popularized by [Douglas Crockford](http://www.crockford.com/), the format was standardized in the [fifth edition](http://es5.github.com/) of the ECMAScript specification. The 5.1 edition, ratified in June 2011, incorporates several modifications to the grammar pertaining to the serialization of dates.
+_"Why not just use JSON.stringify and JSON.parse?,"_ I hear you asking.
+Great question.
 
-JSON 3 exposes two functions: `stringify()` for [serializing](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/JSON/stringify) a JavaScript value to JSON, and `parse()` for [producing](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/JSON/parse) a JavaScript value from a JSON source string. It is a **drop-in replacement** for [JSON 2](http://json.org/js). The functions behave exactly as described in the ECMAScript spec, **except** for the date serialization discrepancy noted below.
+Kamino.js implements the [_structured clone algorithm_ described in the
+HTML5
+specification](http://www.w3.org/TR/html5/common-dom-interfaces.html#safe-passing-of-structured-data).
+The structured clone algorithm supports more complicated data structures
+than the limited subset JSON does. (See _Differences from JSON_, below.)
 
-The JSON 3 parser does **not** use `eval` or regular expressions. This provides security and performance benefits in obsolete and mobile environments, where the margin is particularly significant. The complete [benchmark suite](http://jsperf.com/json3) is available on [jsPerf](http://jsperf.com/).
+Within the constraints of what's possible with
+JavaScript (see _Limitations_, below), you will get the same results
+with Kamino.js as you would by using the built-in structured clone
+behavior in newer browsers.
 
-The project is [hosted on GitHub](http://git.io/json3), along with the [unit tests](http://bestiejs.github.com/json3/test/test_browser.html). It is part of the [BestieJS](https://github.com/bestiejs) family, a collection of best-in-class JavaScript libraries that promote cross-platform support, specification precedents, unit testing, and plenty of documentation.
+This means you can feel free to pass objects as rich as you'd like, and
+not be limited to the restricted subset JSON allows.
 
-# Changes from JSON 2 #
+### Usage
 
-JSON 3...
+Kamino.js works just like `JSON`. To create a string representation of
+an object, call `Kamino.stringify`:
 
-* Correctly serializes primitive wrapper objects.
-* Throws a `TypeError` when serializing cyclic structures (JSON 2 recurses until the call stack overflows).
-* Utilizes **feature tests** to detect broken or incomplete *native* JSON implementations (JSON 2 only checks for the presence of the native functions). The tests are only executed once at runtime, so there is no additional performance cost when parsing or serializing values.
+```javascript
+var message = {
+  name: 'authorAdded',
+  data: {
+    name: "Yehuda Katz",
+    age: 30
+  }
+};
 
-**As of v3.2.3**, JSON 3 is compatible with [Prototype](http://prototypejs.org) 1.6.1 and older.
+var serialized = Kamino.stringify(message);
+window.parent.postMessage(serialized, '*');
+```
 
-In contrast to JSON 2, JSON 3 **does not**...
+On the receiving end, deserialize using `Kamino.parse`:
 
-* Add `toJSON()` methods to the `Boolean`, `Number`, and `String` prototypes. These are not part of any standard, and are made redundant by the design of the `stringify()` implementation.
-* Add `toJSON()` or `toISOString()` methods to `Date.prototype`. See the note about date serialization below.
+```javascript
+window.addEventListener('message', function(event) {
+  var message = Kamino.parse(event.data);
 
-## Date Serialization
+  var name = message.name;
+  var data = message.data;
 
-**JSON 3 deviates from the specification in one important way**: it does not define `Date#toISOString()` or `Date#toJSON()`. This preserves CommonJS compatibility and avoids polluting native prototypes. Instead, date serialization is performed internally by the `stringify()` implementation: if a date object does not define a custom `toJSON()` method, it is serialized as a [simplified ISO 8601 date-time string](http://es5.github.com/#x15.9.1.15).
+  console.log('Got message ' + name + ' with data ', data);
+});
+```
 
-**Several native `Date#toJSON()` implementations produce date time strings that do *not* conform to the grammar outlined in the spec**. For instance, all versions of Safari 4, as well as JSON 2, fail to serialize extended years correctly. Furthermore, JSON 2 and older implementations omit the milliseconds from the date-time string (optional in ES 5, but required in 5.1). Finally, in all versions of Safari 4 and 5, serializing an invalid date will produce the string `"Invalid Date"`, rather than `null`. Because these environments exhibit other serialization bugs, however, JSON 3 will override the native `stringify()` implementation.
+If you're not crossing memory boundaries, Kamino.js includes a shorthand
+for creating a structured clone:
 
-Portions of the date serialization code are adapted from the [`date-shim`](https://github.com/Yaffle/date-shim) project.
+```javascript
+var clone = Kamino.clone(object);
+```
 
-# Usage #
+Note that this is just shorthand for:
 
-## Web Browsers
+```javascript
+Kamino.parse(Kamino.stringify(object));
+```
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.2.4/json3.min.js"></script>
-    <script>
-      JSON.stringify({"Hello": 123});
-      // => '{"Hello":123}'
-      JSON.parse("[[1, 2, 3], 1, 2, 3, 4]", function (key, value) {
-        if (typeof value == "number") {
-          value = value % 2 ? "Odd" : "Even";
-        }
-        return value;
-      });
-      // => [["Odd", "Even", "Odd"], "Odd", "Even", "Odd", "Even"]
-    </script>
+Because it involves a serialization/deserialization roundtrip, there are
+probably more memory- and CPU-efficient ways to create clones in the
+same memory space.
 
-## CommonJS Environments
+### Differences from JSON
 
-    var JSON3 = require("./path/to/json3");
-    JSON3.parse("[1, 2, 3]");
-    // => [1, 2, 3]
+#### Additional Primitive Support
 
-## JavaScript Engines
+JSON supports a very narrow subset of primitive types: strings, numbers,
+`null`, arrays, and objects. If you try to serialize other types, they
+will be converted to `null` (like `Infinity` or `NaN`) or to a string
+(`Date`s) that must be manually deserialized on the other side.
 
-    load("path/to/json3.js");
-    JSON.stringify({"Hello": 123, "Good-bye": 456}, ["Hello"], "\t");
-    // => '{\n\t"Hello": 123\n}'
+In addition to the types supported by JSON, Kamino.js supports:
 
-# Compatibility #
+* `Infinity`
+* `-Infinity`
+* `NaN`
+* `undefined`
+* `Boolean` objects (`new Boolean(true)` vs. the primitive `true`)
+* `Date` objects
+* `RegExp` objects
 
-JSON 3 has been **tested** with the following web browsers, CommonJS environments, and JavaScript engines.
+#### Identity Preservation
 
-## Web Browsers
+In JSON, if an object or array contains multiple references to the same
+object, the fact that they are the same object is lost during
+serialization.
 
-- Windows [Internet Explorer](http://www.microsoft.com/windows/internet-explorer), version 6.0 and higher
-- Mozilla [Firefox](http://www.mozilla.com/firefox), version 1.0 and higher
-- Apple [Safari](http://www.apple.com/safari), version 2.0 and higher
-- [Opera](http://www.opera.com) 7.02 and higher
-- [Mozilla](http://sillydog.org/narchive/gecko.php) 1.0, [Netscape](http://sillydog.org/narchive/) 6.2.3, and [SeaMonkey](http://www.seamonkey-project.org/) 1.0 and higher
+```javascript
+var person = {
+  firstName: "Tom",
+  lastName: "Dale"
+};
 
-## CommonJS Environments
+var blog = {
+  administrator: person,
+  author: person
+};
 
-- [Node](http://nodejs.org/) 0.2.6 and higher
-- [RingoJS](http://ringojs.org/) 0.4 and higher
-- [Narwhal](http://narwhaljs.org/) 0.3.2 and higher
+blog.administrator === blog.author; // true
 
-## JavaScript Engines
+var jsonClone = JSON.parse(JSON.stringify((blog));
+jsonClone.administrator === jsonClone.author; // false
+```
 
-- Mozilla [Rhino](http://www.mozilla.org/rhino) 1.5R5 and higher
-- WebKit [JSC](https://trac.webkit.org/wiki/JSC)
-- Google [V8](http://code.google.com/p/v8)
+When Kamino.js serializes an object, it includes information about the
+identity of objects. If the same object is used multiple times in the
+same serialized graph, its identity will be preserved during
+deserialization.
 
-## Known Incompatibilities
+```javascript
+var kaminoClone = Kamino.clone(blog);
+kaminoClone.administrator === kaminoClone.author; // true
+```
 
-* Attempting to serialize the `arguments` object may produce inconsistent results across environments due to specification version differences. As a workaround, please convert the `arguments` object to an array first: `JSON.stringify([].slice.call(arguments, 0))`.
+#### Circular References
 
-## Required Native Methods
+Because of the identity support described above, it is no problem at all
+to pass an object with circular references:
 
-JSON 3 assumes that the following methods exist and function as described in the ECMAScript specification:
+```javascript
+var parent = {};
+var child = {};
 
-- The `Number`, `String`, `Array`, `Object`, `Date`, `SyntaxError`, and `TypeError` constructors.
-- `String.fromCharCode`
-- `Object#toString`
-- `Function#call`
-- `Math.floor`
-- `Number#toString`
-- `Date#valueOf`
-- `String.prototype`: `indexOf`, `charCodeAt`, `charAt`, `slice`.
-- `Array.prototype`: `push`, `pop`, `join`.
+parent.child = child;
+child.parent = parent;
 
-# Contribute #
+JSON.stringify(parent);
+// TypeError: Converting circular structure to JSON
 
-Check out a working copy of the JSON 3 source code with [Git](http://git-scm.com/):
+Kamino.stringify(parent);
+// OK!
+```
 
-    $ git clone git://github.com/bestiejs/json3.git
-    $ cd json3
-    $ git submodule update --init
+### Limitations
 
-If you'd like to contribute a feature or bug fix, you can [fork](http://help.github.com/fork-a-repo/) JSON 3, commit your changes, and [send a pull request](http://help.github.com/send-pull-requests/). Please make sure to update the unit tests in the `test` directory as well.
+#### Structured Algorithm Limitations
 
-Alternatively, you can use the [GitHub issue tracker](https://github.com/bestiejs/json3/issues) to submit bug reports, feature requests, and questions, or send tweets to [@kitcambridge](http://twitter.com/kitcambridge).
+Some limitations of Kamino.js are inherent to the structured clone
+algorithm itself.
 
-JSON 3 is released under the [MIT License](http://kit.mit-license.org/).
+###### Restricted Types
+
+For security reasons, you are not allowed to clone `Error`, `Function`
+or `Element` objects. Doing so will raise a `DATA_CLONE_ERR` exception.
+
+###### Imperfect Clones
+
+Property descriptors, getters, and setters are not preserved when
+cloning objects, nor is the prototype chain.
+
+```javascript
+var Person = function(name) {
+  this.name = name;
+};
+Person.prototype.isPerson = true;
+
+var patrick = new Person("Patrick Gibson");
+patrick.name;
+// "Patrick Gibson"
+patrick.isPerson;
+// true
+
+var clone = Kamino.clone(patrick);
+clone.name;
+// "Patrick Gibson"
+clone.isPerson;
+// undefined 
+```
+
+#### Kamino.js Limitations
+
+Some parts of the structured algorithm specification rely on being able
+to manually manage memory in the VM, which is not exposed to JavaScript.
+Therefore, you should note these limitations when using Kamino.js.
+
+##### Performance
+
+Because the native browser implementation of the structured clone
+algorithm is able to copy the objects from one memory space to another
+directly, it will always have a performance benefit over Kamino.js,
+which must serialize to an intermediate string format.
+
+For most uses, the performance difference should be negligible. But you
+should keep it in mind if transferring extremely large data structures.
+
+##### Transferable Objects
+
+From the W3C specification:
+
+> Some objects support being copied and closed in one operation. This
+> is called transferring the object, and is used in particular to
+> transfer ownership of unsharable or expensive resources across worker
+> boundaries.
+
+Because there is no API for allowing us to neuter objects, or transfer
+objects from one memory space to another, this feature is not supported
+in Kamino.js and will raise an error.
+
+##### Compatibility
+
+It is important to note that **the Kamino.js serialization format is not
+designed to serve as a data interchange.** It is extremely
+hardcoded to JavaScript semantics and is not intended to be used in
+environments outside of the browser. If you would like to pass messages
+across different environments, please use JSON instead!
+
+Kamino.js is designed to be used for immediate serialization and
+deserialization across memory boundaries within the same browser
+context. **Any other use is at your own risk.**
+
+Additionally, the Kamino.js serialization format, while based on JSON,
+has not undergone the same level of scrutiny and standardization. The
+serialized output from `Kamino.stringify` is intended to be consumed
+*only* by `Kamino.parse`. I am happy to more rigorously specify the
+serialization format if there is community interest, but in the
+meantime, you should only use Kamino.js to generate and consume the
+serialized forms, and until a version 1.0 is released I reserve the
+right to make breaking changes to the serialization format.
