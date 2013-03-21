@@ -378,6 +378,30 @@
     this.done(3);
   });
 
+  testSuite.addTest("`clone`", function() {
+    var person = {
+      firstName: "Cyril",
+      lastName: "Fluck"
+    };
+
+    var blog = {
+      administrator: person,
+      author: person
+    };
+
+    this.strictEqual(blog.administrator, blog.author, "Object references are equal"); // true
+
+    var kaminoClone = Kamino.clone(blog);
+    this.strictEqual(kaminoClone.administrator, kaminoClone.author, "Object references are preserved when an object is cloned");
+
+    blog.administrator.firstName = "John";
+    blog.administrator.lastName = "Doe";
+
+    this.notStrictEqual(kaminoClone.administrator, blog.administrator, "Objects are cloned");
+
+    this.done(3);
+  });
+
   /*
    * The following tests are adapted from the ECMAScript 5 Conformance Suite.
    * Copyright 2009, Microsoft Corporation. Distributed under the New BSD License.
