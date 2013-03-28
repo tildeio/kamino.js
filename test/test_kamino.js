@@ -369,7 +369,7 @@
   });
 
   testSuite.addTest("`stringify`: Invalid Expressions", function (test) {
-    var myFn = new Function(), myError = new Error(), myElement = window.document.createElement();
+    var myFn = new Function(), myError = new Error(), myElement = window.document.createElement('div');
 
     Spec.forEach([myFn, myError, myElement], function(expression) {
       test.serializeError(expression);
