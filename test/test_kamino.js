@@ -55,7 +55,7 @@
     return this.error(function () {
       Kamino.stringify(value, filter, width);
     }, function (exception) {
-      return exception == DOMException;
+      return exception instanceof Kamino.Exception;
     }, message);
   };
 
