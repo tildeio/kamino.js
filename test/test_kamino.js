@@ -55,7 +55,7 @@
     return this.error(function () {
       Kamino.stringify(value, filter, width);
     }, function (exception) {
-      return exception instanceof Kamino.Exception;
+      return exception instanceof KaminoException;
     }, message);
   };
 
@@ -356,6 +356,17 @@
     });
 
     this.done(3);
+  });
+
+  testSuite.addTest("`stringify`: when `Element` is not defined (web workers), it should not generate errors", function (test) {
+    var ElementKlass = window['Element'];
+    window['Element'] = undefined;
+
+    this.serializes("null", null, "`null` is represented literally");
+
+    window['Element'] = ElementKlass;
+
+    this.done(1);
   });
 
   testSuite.addTest("`clone`", function() {
