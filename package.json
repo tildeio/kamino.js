@@ -1,6 +1,6 @@
 {
   "name": "kamino",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A library for passing data structures between sandboxed environments in the browser via postMessage.",
   "homepage": "http://github.com/tildeio/kamino.js",
   "main": "./lib/kamino",
