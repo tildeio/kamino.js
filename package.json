@@ -2,7 +2,7 @@
   "name": "kamino",
   "version": "0.0.1",
   "description": "A library for passing data structures between sandboxed environments in the browser via postMessage.",
-  "homepage": "http://github.com/Cyril-sf/kamino.js",
+  "homepage": "http://github.com/tildeio/kamino.js",
   "main": "./lib/kamino",
   "keywords": ["json", "spec", "ecma", "es5", "lexer", "parser", "stringify", "postMessage"],
   "licenses": [{
@@ -18,13 +18,13 @@
     "web": "http://github.com/Cyril-sf"
   }],
   "bugs": {
-    "url": "http://github.com/Cyril-sf/kamino.js/issues"
+    "url": "http://github.com/tildeio/kamino.js/issues"
   },
   "scripts": {
     "test": "node test/test_*.js"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/Cyril-sf/kamino.js"
+    "url": "http://github.com/tildeio/kamino.js"
   }
 }
