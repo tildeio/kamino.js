@@ -1,0 +1,30 @@
+{
+  name: 'kamino.js',
+  version: '0.0.1',
+  homepage: 'https://github.com/tildeio/kamino.js',
+  authors: [
+    'Cyril Fluck <cyril@fluck.fr>'
+  ],
+  description: 'A library for passing data structures between sandboxed environments in the browser via `postMessage`',
+  main: 'lib/kamino.js',
+  keywords: [
+    'json',
+    'spec',
+    'ecma',
+    'es5',
+    'lexer',
+    'parser',
+    'stringify',
+    'postMessage'
+  ],
+  license: 'MIT',
+  ignore: [
+    '**/.*',
+    'node_modules',
+    'bower_components',
+    'page',
+    'test',
+    'tests',
+    'vendor'
+  ]
+}
