@@ -19,6 +19,7 @@
   ],
   "license": "MIT",
   "ignore": [
+    "build.js",
     "**/.*",
     "node_modules",
     "bower_components",
